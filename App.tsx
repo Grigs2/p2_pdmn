@@ -22,6 +22,11 @@ export default function App() {
 
   const [nomePaisPesquisa, setNomePaisPesquisa] = useState<string>('');
 
+  const[nomeCapitalPesquisa, setNomeCapitalPesquisa] = useState<string>('');
+  const[nomeOficialPais2, setNomeOficialPais2] = useState('');
+  const[bandeiraPais, setBandeiraPais] = useState('');
+  const[altBandeiraPais, setAltBandeiraPais] = useState('');
+
   const buscarTodos = () => {
   setCarregando(true);
     restcountriesClient.get('all', {
@@ -61,6 +66,33 @@ const buscarNome = (nomePaisPesquisa: string) =>{
     setCarregando(false);
   });
 }
+// fim entrega 1
+
+const buscarCapital = (nomeCapitalPesquisa: string) =>{
+    setCarregando(true);
+    restcountriesClient.get(`capital/${nomeCapitalPesquisa}`, {
+      params: {
+        fields: 'name,flags'
+      }
+    })
+  .then(result => {
+    console.log(result.data);
+    setBandeiraPais(result.data[0].flags.png)
+    setNomeOficialPais2(result.data[0].name.official)
+    setAltBandeiraPais(result.data[0].flags.alt)
+  })
+  .catch(e => {
+    console.log('Erro:', e);
+  })
+  .finally(() => {
+    setCarregando(false);
+  });
+}
+
+
+
+
+
 
   return (
     <View style={styles.container}>
@@ -101,9 +133,30 @@ const buscarNome = (nomePaisPesquisa: string) =>{
         <text>
           {fotoPais}
         </text>
-
       </View>
-    
+    {/* Entrega 1 */}
+
+      <TextInput
+        style={styles.estilo1}
+        placeholder='O nome da capital a ser pesquisada'
+        onChangeText={setNomeCapitalPesquisa}
+        value={nomeCapitalPesquisa}
+        />
+
+      <Pressable
+      style={styles.button}
+      onPress={() => buscarCapital(nomeCapitalPesquisa)}>
+      <text
+      style={styles.buttonText}>Pesquisar Capital</text>
+      </Pressable>
+
+      <View>
+        <text>
+          {nomeOficialPais2}
+        </text>
+        <img src={bandeiraPais} alt={altBandeiraPais} />
+      </View>
+
     </View>
   );
 
@@ -113,7 +166,7 @@ const buscarNome = (nomePaisPesquisa: string) =>{
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -123,6 +176,7 @@ const styles = StyleSheet.create({
     borderColor:'gray',
     borderWidth: 1,
     marginBottom:12,
+    marginTop:12,
     padding:8,
     textAlign: 'center',
     borderRadius: 4
