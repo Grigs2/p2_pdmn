@@ -15,16 +15,18 @@ export default function App() {
 
   const [carregando, setCarregando] = useState(false);
 
+  const[nomeComumPais, setNomeComumPais] = useState('');
+  const[nomeOficialPais, setNomeOficialPais] = useState('');
+  const[nomeRussoPais, setNomeRussoPais] = useState('');
+  const[fotoPais, setFotoPais] = useState('');
 
-
-
-  const [nomePais, setNomePais] = useState<string>('');
+  const [nomePaisPesquisa, setNomePaisPesquisa] = useState<string>('');
 
   const buscarTodos = () => {
   setCarregando(true);
     restcountriesClient.get('all', {
       params: {
-        fields: 'name,capital'
+        fields: 'name,capital,translations,maps'
       }
     })
   .then(result => {
@@ -38,7 +40,27 @@ export default function App() {
   });
   }
 
-
+const buscarNome = (nomePaisPesquisa: string) =>{
+  setCarregando(true);
+    restcountriesClient.get(`name/${nomePaisPesquisa}`, {
+      params: {
+        fields: 'name,capital,translations,maps'
+      }
+    })
+  .then(result => {
+    console.log(result.data);
+    setNomeComumPais(result.data[0].name.common)
+    setNomeOficialPais(result.data[0].name.official)
+    setNomeRussoPais(result.data[0].translations.rus.common)
+    setFotoPais(result.data[0].maps.openStreetMaps)
+  })
+  .catch(e => {
+    console.log('Erro:', e);
+  })
+  .finally(() => {
+    setCarregando(false);
+  });
+}
 
   return (
     <View style={styles.container}>
@@ -53,16 +75,34 @@ export default function App() {
 
         <TextInput
         style={styles.estilo1}
-        placeholder='Digite Algo...'
-        onChangeText={setNomePais}
-        value={nomePais}
+        placeholder='O nome do Pais a ser pesquisado'
+        onChangeText={setNomePaisPesquisa}
+        value={nomePaisPesquisa}
         />
 
       <Pressable
-      style={styles.button}>
+      style={styles.button}
+      onPress={() => buscarNome(nomePaisPesquisa)}>
       <text
       style={styles.buttonText}>Pesquisar nome</text>
       </Pressable>
+
+
+      <View>
+        <text>
+          {nomeComumPais}
+        </text>
+        <text>
+          {nomeOficialPais}
+        </text>
+        <text>
+          {nomeRussoPais}
+        </text>
+        <text>
+          {fotoPais}
+        </text>
+
+      </View>
     
     </View>
   );
